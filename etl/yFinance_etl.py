@@ -1,31 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import logging
-
-from abc import ABC, abstractmethod
-
-logging.basicConfig(
-    filename="basic.log",
-    encoding="utf-8",
-    level=logging.INFO,
-    filemode="w",
-    format="%(process)d-%(levelname)s-%(message)s",
-)
-# Simple ETL example using yFinance
-
-
-class ETL(ABC):
-    @abstractmethod
-    def extract_data(self):
-        pass
-
-    @abstractmethod
-    def transform_data(self):
-        pass
-
-    @abstractmethod
-    def load_data(self):
-        pass
+from base_etl import ETL
 
 
 class yFinanceETL(ETL):
@@ -33,7 +9,7 @@ class yFinanceETL(ETL):
         self.tickers = tickers
 
         if len(self.tickers) == 0:
-            logging.error("You need to enter a ticker")
+            logging.error("Ticker not entered")
             raise ValueError("Need to enter a ticker")
 
     def extract_data(self):
@@ -72,12 +48,5 @@ class yFinanceETL(ETL):
 
     def load_data(self, df):
         logging.info("Loading CSV")
-        df.to_csv("aapl_spy.csv")
+        df.to_csv("stocks.csv")
         logging.info("CSV complete")
-
-
-tickers = ["TSLA"]
-etl = yFinanceETL(tickers)
-data = etl.extract_data()
-transformed_data = etl.transform_data(data)
-etl.load_data(transformed_data)
