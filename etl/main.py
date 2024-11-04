@@ -1,5 +1,5 @@
 import logging
-from yFinance_etl import yFinanceETL
+from etl.yFinance_etl import yFinanceETL
 
 logging.basicConfig(
     filename="basic.log",

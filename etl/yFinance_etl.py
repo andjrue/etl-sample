@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import logging
-from base_etl import ETL
+from finance_base_etl.base_etl import ETL
 
 
 class yFinanceETL(ETL):
