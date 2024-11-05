@@ -7,9 +7,9 @@ class ETL(ABC):
         pass
 
     @abstractmethod
-    def transform_data(self):
+    def transform_data(self, data):
         pass
 
     @abstractmethod
-    def load_data(self):
+    def load_data(self, data):
         pass

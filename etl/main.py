@@ -1,4 +1,5 @@
 import logging
+import datetime
 from etl.yFinance_etl import yFinanceETL
 
 logging.basicConfig(
@@ -6,7 +7,7 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.INFO,
     filemode="w",
-    format="%(process)d-%(levelname)s-%(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
