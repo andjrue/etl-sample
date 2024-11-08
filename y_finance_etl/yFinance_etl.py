@@ -1,3 +1,8 @@
+"""
+Simple ETL pipeline that takes data from the yfinance module and converts it to a CSV.
+The CSV is then uploaded to S3.
+"""
+
 import yfinance as yf
 import pandas as pd
 import logging
@@ -22,9 +27,10 @@ class yFinanceETL(ETL):
         """
         Not sure why there is an error showing in my IDE here. Need to investigate that. The code runs no problem.
 
-        The error is showing because the ETL class doesn't specify any return types. That would be easy enough to add, I just don't
-        think it's necessary for this example.
+        The error is showing because the ETL class doesn't specify any return types. Easy enough to add but it may be unnecessary the way this is currently set up.
         """
+
+        # Would want to add some kind of data validation step here.
 
         logging.info(f"Preparing data extraction for: {self.tickers}")
         start_date = pd.Timestamp.now() - pd.DateOffset(months=12)
@@ -33,9 +39,18 @@ class yFinanceETL(ETL):
         all_data = []
 
         for ticker in self.tickers:
+
+            history = yf.Ticker(ticker).history(period='1mo', interval='1d')
+
+            if history.empty:
+                logging.error(f"Data not extracted for ticker: {ticker}")
+                return pd.DataFrame()
+                # Good to return a blank df here. No need to go further if we can't get all data.
+
             df_ticker = yf.download(ticker, start=start_date, end=end_date)[["Close"]]
             df_ticker.columns = [ticker]
             all_data.append(df_ticker)
+            logging.info(f"Data extracted for {ticker}")
 
         df_combined = pd.concat(all_data, axis=1)
 
@@ -56,7 +71,7 @@ class yFinanceETL(ETL):
             data[f"{ticker}_%_Change"] = (
                 data[f"{ticker}_Difference"] / data[ticker].shift(1)
             ) * 100
-        # print(data)
+
         return data
 
     def gen_csv(self, data):
@@ -65,6 +80,9 @@ class yFinanceETL(ETL):
         logging.info("CSV complete")
 
     def upload_csv_s3(self, file_name, bucket, object_name=None):
+
+        # You could add an exponential backoff here to handle upload failures. Since this is a simple example,
+        # I didn't feel the need to go through with it. Its mostly to illustrate possibilities
 
         load_dotenv()
         ACCESS_KEY = os.getenv("ACCESS_KEY")
@@ -80,7 +98,7 @@ class yFinanceETL(ETL):
             response = s3_client.upload_file(file_name, bucket, object_name)
             logging.info("Upload successful")
         except ClientError as e:
-            logging.info(e)
+            logging.info(f"failed uploading to S3:\n {e}")
             return False
         return True
 

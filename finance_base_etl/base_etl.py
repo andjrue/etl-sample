@@ -1,3 +1,8 @@
+"""
+Base class used to generate other classes. Each class that inherits ETL will need to use the methods below
+with the @abstractmethod decorator.
+"""
+
 from abc import ABC, abstractmethod
 
 
